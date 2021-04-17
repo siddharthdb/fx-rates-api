@@ -1,16 +1,19 @@
 const express = require("express");
 const FxRates = require('../models/fxrates');
-// const parseString = require('xml2js').parseString;
+const fetch = require('node-fetch');
+const parseString = require('xml2js').parseString;
 
 const router = express.Router();
 
 /**
-* Get latest FX Rates 
-*/
-router.get("/latest", async(req, res) => {
+ * Get latest FX Rates 
+ */
+router.get("/latest", async (req, res) => {
 
     try {
-        const fxrate = await FxRates.find({}).sort({ date: -1 }).limit(1);
+        const fxrate = await FxRates.find({}).sort({
+            date: -1
+        }).limit(1);
         if (fxrate)
             res.send(fxrate);
         else
@@ -22,10 +25,44 @@ router.get("/latest", async(req, res) => {
     }
 });
 
-// TODO: Add code to parse data from ECB
-// parseString(data, (err, result) => {
-//     console.dir(result['gesmes:Envelope'].Cube[0]['Cube']);
-// });
+router.get("/refresh", async (req, res) => {
+
+    try {
+        const response = await fetch(process.env.ECB_API_URL);
+        const data = await response.text();
+        const fxData = []
+
+        parseString(data, (err, result) => {            
+            result['gesmes:Envelope'].Cube[0]['Cube'].forEach(item => {
+                const fxrates = [];
+                const record = {
+                    date: '',
+                    rates: []
+                };
+
+                record.date = item.$.time;
+                item.Cube.forEach(rate => {
+                    fxrates.push(rate.$);
+                });
+                record.rates = fxrates;
+                fxData.push(record)
+            });
+        });
+        
+        const fxresult = await FxRates.insertMany(fxData);
+        if (fxresult)
+            res.send(fxresult);
+        else
+            res.status(500).send(`Cannot insert data into database. Check console log for error. ${fxresult}`)
+            
+    } catch (error) {
+        res.status(500).send({
+            message: err.message || "Error occured in inserting data!",
+        });
+    }
+});
+
+
 
 
 module.exports = router;
