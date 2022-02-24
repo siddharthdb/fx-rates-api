@@ -5,6 +5,10 @@ const parseString = require('xml2js').parseString;
 
 const router = express.Router();
 
+router.get("/", (req, res) => {
+    res.send({message:"Welcome to fx-rates-api"});
+})
+
 /**
  * Get latest FX Rates 
  */
