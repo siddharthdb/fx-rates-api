@@ -61,7 +61,7 @@ router.get("/refresh", async (req, res) => {
             
     } catch (error) {
         res.status(500).send({
-            message: err.message || "Error occured in inserting data!",
+            message: error.message || "Error occured in inserting data!",
         });
     }
 });
