@@ -14,6 +14,6 @@ fxratesSchema.method("toJSON", function () {
     return object;
 });
 
-const FxRates = mongoose.model('Fxrate', fxratesSchema);
+const FxRates = mongoose.model('fxrate', fxratesSchema);
 
 module.exports = FxRates;

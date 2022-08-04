@@ -1,10 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const path = require('path');
+const path = require("path");
 const cors = require("cors");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-//config 
+//config
 const { PORT, DB_URL } = require("./config");
 
 const app = express();
@@ -13,21 +13,23 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 var corsOptions = {
-    origin: "*",
+  origin: "*",
 };
 
 app.use(cors(corsOptions));
 
 //setup mongodb connection
-mongoose.connect(DB_URL, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
+mongoose.connect(DB_URL, {
+  useUnifiedTopology: true,
+});
 const connection = mongoose.connection;
-connection.once('open', () => {
-    console.log("Conneted to database!");
+connection.once("open", () => {
+  console.log("Conneted to database!");
 });
 
 // Routes
-const fxRoutes = require('./routes/fxrates');
+const fxRoutes = require("./routes/fxrates");
 app.use(fxRoutes);
 
 console.log(`Server running on Port ${PORT || 3000}`);
-app.listen(PORT || 3000)
+app.listen(PORT || 3000);
