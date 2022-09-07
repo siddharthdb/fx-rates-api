@@ -1,6 +1,7 @@
 const express = require("express");
 const FxRates = require('../models/fxrates');
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch');
+const axios = require("axios").default;
 const parseString = require('xml2js').parseString;
 
 const router = express.Router();
@@ -54,8 +55,8 @@ router.get("/", async (req, res) => {
 router.get("/db/refresh", async (req, res) => {
 
     try {
-        const response = await fetch(process.env.ECB_API_URL);
-        const data = await response.text();
+        const response = await axios.get(process.env.ECB_API_URL);    
+        const data = await response.data;
         const fxData = []
 
         const result = await FxRates.find({}, { _id: 0, date: 1});
